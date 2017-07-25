@@ -5,7 +5,7 @@
     <parent>
         <artifactId>amazon-kinesis-connectors</artifactId>
         <groupId>com.amazonaws</groupId>
-        <version>1.3.0</version>
+        <version>${amazon-kinesis-connectors.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
