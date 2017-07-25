@@ -35,8 +35,7 @@ public class S3ManifestExecutor extends KinesisConnectorExecutor<KinesisMessageM
     }
 
     @Override
-    public KinesisConnectorRecordProcessorFactory<KinesisMessageModel, byte[]>
-            getKinesisConnectorRecordProcessorFactory() {
+    public KinesisConnectorRecordProcessorFactory<KinesisMessageModel, byte[]> getKinesisConnectorRecordProcessorFactory() {
         return new KinesisConnectorRecordProcessorFactory<>(new S3ManifestPipeline(), config);
     }
 }

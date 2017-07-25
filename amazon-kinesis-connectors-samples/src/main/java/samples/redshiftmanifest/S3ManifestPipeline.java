@@ -47,7 +47,7 @@ public class S3ManifestPipeline implements IKinesisConnectorPipeline<KinesisMess
 
     @Override
     public IBuffer<KinesisMessageModel> getBuffer(KinesisConnectorConfiguration configuration) {
-        return new BasicMemoryBuffer<KinesisMessageModel>(configuration);
+        return new BasicMemoryBuffer<>(configuration);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class S3ManifestPipeline implements IKinesisConnectorPipeline<KinesisMess
 
     @Override
     public IFilter<KinesisMessageModel> getFilter(KinesisConnectorConfiguration configuration) {
-        return new AllPassFilter<KinesisMessageModel>();
+        return new AllPassFilter<>();
     }
 
 }

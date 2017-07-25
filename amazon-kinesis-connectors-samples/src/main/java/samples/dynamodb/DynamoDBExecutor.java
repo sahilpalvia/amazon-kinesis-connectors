@@ -41,7 +41,7 @@ public class DynamoDBExecutor extends KinesisConnectorExecutor<KinesisMessageMod
     @Override
     public KinesisConnectorRecordProcessorFactory<KinesisMessageModel, Map<String, AttributeValue>>
             getKinesisConnectorRecordProcessorFactory() {
-        return new KinesisConnectorRecordProcessorFactory<KinesisMessageModel, Map<String, AttributeValue>>(new DynamoDBMessageModelPipeline(),
+        return new KinesisConnectorRecordProcessorFactory<>(new DynamoDBMessageModelPipeline(),
                 config);
     }
 
@@ -51,8 +51,7 @@ public class DynamoDBExecutor extends KinesisConnectorExecutor<KinesisMessageMod
      * @param args
      */
     public static void main(String[] args) {
-        KinesisConnectorExecutor<KinesisMessageModel, Map<String, AttributeValue>> dynamoDBExecutor =
-                new DynamoDBExecutor(configFile);
+        KinesisConnectorExecutor<KinesisMessageModel, Map<String, AttributeValue>> dynamoDBExecutor = new DynamoDBExecutor(configFile);
         dynamoDBExecutor.run();
     }
 }

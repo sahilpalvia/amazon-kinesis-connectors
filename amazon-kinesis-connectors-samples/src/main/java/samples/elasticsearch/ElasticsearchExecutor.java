@@ -56,8 +56,7 @@ public class ElasticsearchExecutor extends KinesisConnectorExecutor<KinesisMessa
             throw new IllegalStateException("Could not load Apache Lucene jar", e);
         }
 
-        KinesisConnectorExecutor<KinesisMessageModel, ElasticsearchObject> elasticsearchExecutor =
-                new ElasticsearchExecutor(configFile);
+        KinesisConnectorExecutor<KinesisMessageModel, ElasticsearchObject> elasticsearchExecutor = new ElasticsearchExecutor(configFile);
         elasticsearchExecutor.run();
     }
 

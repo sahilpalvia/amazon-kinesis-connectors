@@ -32,7 +32,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * 
  * To see how this record was put, view {@class samples.StreamSource}.
  */
-public class SingleKinesisMessageModelElasticsearchTransformer extends KinesisMessageModelElasticsearchTransformer
+public class SingleKinesisMessageModelElasticsearchTransformer
+        extends KinesisMessageModelElasticsearchTransformer
         implements ITransformer<KinesisMessageModel, ElasticsearchObject> {
     private static final Log LOG = LogFactory.getLog(SingleKinesisMessageModelElasticsearchTransformer.class);
 

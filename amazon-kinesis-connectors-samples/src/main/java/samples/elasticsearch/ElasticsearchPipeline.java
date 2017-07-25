@@ -36,12 +36,11 @@ public class ElasticsearchPipeline implements IKinesisConnectorPipeline<KinesisM
 
     @Override
     public IBuffer<KinesisMessageModel> getBuffer(KinesisConnectorConfiguration configuration) {
-        return new BasicMemoryBuffer<KinesisMessageModel>(configuration);
+        return new BasicMemoryBuffer<>(configuration);
     }
 
     @Override
-    public ITransformerBase<KinesisMessageModel, ElasticsearchObject>
-            getTransformer(KinesisConnectorConfiguration configuration) {
+    public ITransformerBase<KinesisMessageModel, ElasticsearchObject> getTransformer(KinesisConnectorConfiguration configuration) {
         if (configuration.BATCH_RECORDS_IN_PUT_REQUEST) {
             return new BatchedKinesisMessageModelElasticsearchTransformer();
         } else {
@@ -51,7 +50,7 @@ public class ElasticsearchPipeline implements IKinesisConnectorPipeline<KinesisM
 
     @Override
     public IFilter<KinesisMessageModel> getFilter(KinesisConnectorConfiguration configuration) {
-        return new AllPassFilter<KinesisMessageModel>();
+        return new AllPassFilter<>();
     }
 
 }

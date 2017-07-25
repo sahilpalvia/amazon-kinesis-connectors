@@ -50,7 +50,7 @@ public class BatchedStreamSource extends StreamSource {
 
     public BatchedStreamSource(KinesisConnectorConfiguration config, String inputFile, boolean loopOverStreamSource) {
         super(config, inputFile, loopOverStreamSource);
-        buffer = new ArrayList<KinesisMessageModel>();
+        buffer = new ArrayList<>();
     }
 
     @Override
