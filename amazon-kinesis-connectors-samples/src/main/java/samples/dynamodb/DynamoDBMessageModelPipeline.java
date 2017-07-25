@@ -49,7 +49,7 @@ public class DynamoDBMessageModelPipeline implements
 
     @Override
     public IBuffer<KinesisMessageModel> getBuffer(KinesisConnectorConfiguration configuration) {
-        return new BasicMemoryBuffer<KinesisMessageModel>(configuration);
+        return new BasicMemoryBuffer<>(configuration);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class DynamoDBMessageModelPipeline implements
 
     @Override
     public IFilter<KinesisMessageModel> getFilter(KinesisConnectorConfiguration configuration) {
-        return new AllPassFilter<KinesisMessageModel>();
+        return new AllPassFilter<>();
     }
 
 }

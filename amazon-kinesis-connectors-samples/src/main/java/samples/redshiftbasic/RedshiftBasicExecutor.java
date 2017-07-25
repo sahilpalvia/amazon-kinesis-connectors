@@ -35,8 +35,7 @@ public class RedshiftBasicExecutor extends KinesisConnectorExecutor<KinesisMessa
     }
 
     @Override
-    public KinesisConnectorRecordProcessorFactory<KinesisMessageModel, byte[]>
-            getKinesisConnectorRecordProcessorFactory() {
+    public KinesisConnectorRecordProcessorFactory<KinesisMessageModel, byte[]> getKinesisConnectorRecordProcessorFactory() {
         return new KinesisConnectorRecordProcessorFactory<>(new RedshiftBasicPipeline(), config);
     }
 

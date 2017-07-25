@@ -66,8 +66,7 @@ public class RedshiftManifestExecutor extends KinesisConnectorExecutor<String, S
         }
 
         // Spawn the S3Executor
-        KinesisConnectorExecutor<KinesisMessageModel, byte[]> s3ManifestExecutor =
-                new S3ManifestExecutor(S3_CONFIG_FILE);
+        KinesisConnectorExecutor<KinesisMessageModel, byte[]> s3ManifestExecutor = new S3ManifestExecutor(S3_CONFIG_FILE);
         Thread s3Thread = new Thread(s3ManifestExecutor);
         s3Thread.start();
 

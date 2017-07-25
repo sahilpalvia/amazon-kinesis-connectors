@@ -42,7 +42,6 @@ public class BatchedKinesisMessageModelElasticsearchTransformer extends KinesisM
     @SuppressWarnings("unchecked")
     @Override
     public Collection<KinesisMessageModel> toClass(Record record) throws IOException {
-
         try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(record.getData().array()))) {
             return (Collection<KinesisMessageModel>) ois.readObject();
         } catch (Exception e) {

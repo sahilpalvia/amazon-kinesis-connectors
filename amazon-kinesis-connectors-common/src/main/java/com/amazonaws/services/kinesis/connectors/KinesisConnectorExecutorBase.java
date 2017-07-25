@@ -43,13 +43,14 @@ public abstract class KinesisConnectorExecutorBase<T, U> implements Runnable {
      * @param kinesisConnectorConfiguration Amazon Kinesis connector configuration
      * @param metricFactory would be used to emit metrics in Amazon Kinesis Client Library
      */
-    protected void
-            initialize(KinesisConnectorConfiguration kinesisConnectorConfiguration, IMetricsFactory metricFactory) {
+    protected void initialize(KinesisConnectorConfiguration kinesisConnectorConfiguration, IMetricsFactory metricFactory) {
         KinesisClientLibConfiguration kinesisClientLibConfiguration =
-                new KinesisClientLibConfiguration(kinesisConnectorConfiguration.APP_NAME,
+                new KinesisClientLibConfiguration(
+                        kinesisConnectorConfiguration.APP_NAME,
                         kinesisConnectorConfiguration.KINESIS_INPUT_STREAM,
                         kinesisConnectorConfiguration.AWS_CREDENTIALS_PROVIDER,
-                        kinesisConnectorConfiguration.WORKER_ID).withKinesisEndpoint(kinesisConnectorConfiguration.KINESIS_ENDPOINT)
+                        kinesisConnectorConfiguration.WORKER_ID)
+                        .withKinesisEndpoint(kinesisConnectorConfiguration.KINESIS_ENDPOINT)
                         .withFailoverTimeMillis(kinesisConnectorConfiguration.FAILOVER_TIME)
                         .withMaxRecords(kinesisConnectorConfiguration.MAX_RECORDS)
                         .withInitialPositionInStream(kinesisConnectorConfiguration.INITIAL_POSITION_IN_STREAM)
@@ -70,16 +71,14 @@ public abstract class KinesisConnectorExecutorBase<T, U> implements Runnable {
             LOG.warn("The false value of callProcessRecordsEvenForEmptyList will be ignored. It must be set to true for the bufferTimeMillisecondsLimit to work correctly.");
         }
 
-        if (kinesisConnectorConfiguration.IDLE_TIME_BETWEEN_READS > kinesisConnectorConfiguration.BUFFER_MILLISECONDS_LIMIT) {
+        if (kinesisConnectorConfiguration.IDLE_TIME_BETWEEN_READS >
+                kinesisConnectorConfiguration.BUFFER_MILLISECONDS_LIMIT) {
             LOG.warn("idleTimeBetweenReads is greater than bufferTimeMillisecondsLimit. For best results, ensure that bufferTimeMillisecondsLimit is more than or equal to idleTimeBetweenReads ");
         }
 
         // If a metrics factory was specified, use it.
         if (metricFactory != null) {
-            worker =
-                    new Worker(getKinesisConnectorRecordProcessorFactory(),
-                            kinesisClientLibConfiguration,
-                            metricFactory);
+            worker = new Worker(getKinesisConnectorRecordProcessorFactory(), kinesisClientLibConfiguration, metricFactory);
         } else {
             worker = new Worker(getKinesisConnectorRecordProcessorFactory(), kinesisClientLibConfiguration);
         }

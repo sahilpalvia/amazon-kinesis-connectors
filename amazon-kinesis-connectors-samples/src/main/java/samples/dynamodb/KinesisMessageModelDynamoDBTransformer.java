@@ -27,9 +27,9 @@ import com.amazonaws.services.kinesis.connectors.dynamodb.DynamoDBTransformer;
  * A custom transfomer for {@link KinesisMessageModel} records in JSON format. The output is in a format
  * usable for insertions to Amazon DynamoDB.
  */
-public class KinesisMessageModelDynamoDBTransformer extends
-        BasicJsonTransformer<KinesisMessageModel, Map<String, AttributeValue>> implements
-        DynamoDBTransformer<KinesisMessageModel> {
+public class KinesisMessageModelDynamoDBTransformer
+        extends BasicJsonTransformer<KinesisMessageModel, Map<String, AttributeValue>>
+        implements DynamoDBTransformer<KinesisMessageModel> {
 
     /**
      * Creates a new KinesisMessageModelDynamoDBTransformer.

@@ -55,7 +55,7 @@ public class RedshiftManifestPipeline implements IKinesisConnectorPipeline<Strin
 
     @Override
     public IFilter<String> getFilter(KinesisConnectorConfiguration configuration) {
-        return new AllPassFilter<String>();
+        return new AllPassFilter<>();
     }
 
 }
