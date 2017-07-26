@@ -38,5 +38,5 @@ public interface ITransformer<T, U> extends ITransformerBase<T, U> {
      * @throws IOException
      *         could not convert the record to a T
      */
-    public T toClass(Record record) throws IOException;
+    T toClass(Record record) throws IOException;
 }

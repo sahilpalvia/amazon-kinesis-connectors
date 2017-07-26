@@ -30,6 +30,6 @@ public interface IFilter<T> {
      * @param record
      * @return true if the record should be added to the buffer.
      */
-    public boolean keepRecord(T record);
+    boolean keepRecord(T record);
 
 }
