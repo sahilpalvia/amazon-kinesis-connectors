@@ -14,14 +14,13 @@
  */
 package com.amazonaws.services.kinesis.connectors.impl;
 
-import java.io.IOException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.amazonaws.services.kinesis.connectors.BasicJsonTransformer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.io.IOException;
 
 /**
  * The JsonToByteArrayTransformer defines a BasicJsonTransformer with byte array for its output

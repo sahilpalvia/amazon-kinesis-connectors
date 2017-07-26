@@ -29,7 +29,6 @@ import org.junit.Test;
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.kinesis.connectors.KinesisConnectorConfiguration;
-import com.amazonaws.services.kinesis.connectors.impl.BasicMemoryBuffer;
 
 public class BasicMemoryBufferTests {
     KinesisConnectorConfiguration config;

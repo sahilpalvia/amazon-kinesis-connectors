@@ -32,7 +32,7 @@ import java.io.IOException;
  * @param <U>
  *        the data type to emit
  */
-public abstract interface ITransformerBase<T, U> {
+public interface ITransformerBase<T, U> {
 
     /**
      * Transform record from its original class to final output class.
@@ -42,5 +42,5 @@ public abstract interface ITransformerBase<T, U> {
      * @return U
      *         the object as its final class
      */
-    public U fromClass(T record) throws IOException;
+    U fromClass(T record) throws IOException;
 }

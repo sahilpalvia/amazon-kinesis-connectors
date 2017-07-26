@@ -39,5 +39,5 @@ public interface ICollectionTransformer<T, U> extends ITransformerBase<T, U> {
      * @throws IOException
      *         could not convert the record to a Collection<T>
      */
-    public Collection<T> toClass(Record record) throws IOException;
+    Collection<T> toClass(Record record) throws IOException;
 }

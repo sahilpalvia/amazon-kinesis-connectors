@@ -33,7 +33,7 @@ public interface IBuffer<T> {
      * 
      * @return byte size limit of buffer
      */
-    public long getBytesToBuffer();
+     long getBytesToBuffer();
 
     /**
      * Get the record number limit of data stored in the buffer before the records are flushed to
@@ -41,21 +41,21 @@ public interface IBuffer<T> {
      * 
      * @return record number limit of buffer
      */
-    public long getNumRecordsToBuffer();
+     long getNumRecordsToBuffer();
 
     /**
      * Get the time limit in milliseconds before the records are flushed to the emitter
      * 
      * @return time limit in milleseconds
      */
-    public long getMillisecondsToBuffer();
+     long getMillisecondsToBuffer();
 
     /**
      * Returns true if the buffer is full and stored records should be sent to the emitter
      * 
      * @return true if records should be sent to the emitter followed by clearing the buffer
      */
-    public boolean shouldFlush();
+     boolean shouldFlush();
 
     /**
      * Stores the record in the buffer
@@ -67,12 +67,12 @@ public interface IBuffer<T> {
      * @param sequenceNumber
      *        Amazon Kinesis sequence identifier
      */
-    public void consumeRecord(T record, int recordBytes, String sequenceNumber);
+     void consumeRecord(T record, int recordBytes, String sequenceNumber);
 
     /**
      * Clears the buffer
      */
-    public void clear();
+     void clear();
 
     /**
      * Get the sequence number of the first record stored in the buffer. Used for bookkeeping and
@@ -80,7 +80,7 @@ public interface IBuffer<T> {
      * 
      * @return the sequence number of the first record stored in the buffer
      */
-    public String getFirstSequenceNumber();
+     String getFirstSequenceNumber();
 
     /**
      * Get the sequence number of the last record stored in the buffer. Used for bookkeeping and
@@ -88,12 +88,12 @@ public interface IBuffer<T> {
      * 
      * @return the sequence number of the last record stored in the buffer
      */
-    public String getLastSequenceNumber();
+     String getLastSequenceNumber();
 
     /**
      * Get the records stored in the buffer
      * 
      * @return the records stored in the buffer
      */
-    public List<T> getRecords();
+     List<T> getRecords();
 }

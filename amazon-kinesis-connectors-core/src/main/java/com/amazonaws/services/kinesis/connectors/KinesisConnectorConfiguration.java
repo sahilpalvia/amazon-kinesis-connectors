@@ -244,7 +244,7 @@ public class KinesisConnectorConfiguration {
      * @param properties
      *        the System properties that will be used to configure KinesisConnectors
      */
-    public KinesisConnectorConfiguration(Properties properties, AWSCredentialsProvider credentialsProvider) {
+    public KinesisConnectorConfiguration(final Properties properties, final AWSCredentialsProvider credentialsProvider) {
         AWS_CREDENTIALS_PROVIDER = credentialsProvider;
 
         // Connector configuration
@@ -374,13 +374,13 @@ public class KinesisConnectorConfiguration {
         REGION_NAME = properties.getProperty(PROP_REGION_NAME, DEFAULT_REGION_NAME);
     }
 
-    private boolean getBooleanProperty(String property, boolean defaultValue, Properties properties) {
-        String propertyValue = properties.getProperty(property, Boolean.toString(defaultValue));
+    private boolean getBooleanProperty(final String property, final boolean defaultValue, final Properties properties) {
+        final String propertyValue = properties.getProperty(property, Boolean.toString(defaultValue));
         return Boolean.parseBoolean(propertyValue);
     }
 
-    private long getLongProperty(String property, long defaultValue, Properties properties) {
-        String propertyValue = properties.getProperty(property, Long.toString(defaultValue));
+    private long getLongProperty(final String property, final long defaultValue, final Properties properties) {
+        final String propertyValue = properties.getProperty(property, Long.toString(defaultValue));
         try {
             return Long.parseLong(propertyValue.trim());
         } catch (NumberFormatException e) {
@@ -389,8 +389,8 @@ public class KinesisConnectorConfiguration {
         }
     }
 
-    private int getIntegerProperty(String property, int defaultValue, Properties properties) {
-        String propertyValue = properties.getProperty(property, Integer.toString(defaultValue));
+    private int getIntegerProperty(final String property, final int defaultValue, final Properties properties) {
+        final String propertyValue = properties.getProperty(property, Integer.toString(defaultValue));
         try {
             return Integer.parseInt(propertyValue.trim());
         } catch (NumberFormatException e) {
@@ -399,18 +399,19 @@ public class KinesisConnectorConfiguration {
         }
     }
 
-    private char getCharacterProperty(String property, char defaultValue, Properties properties) {
-        String propertyValue = properties.getProperty(property, Character.toString(defaultValue));
+    private char getCharacterProperty(final String property, final char defaultValue, final Properties properties) {
+        final String propertyValue = properties.getProperty(property, Character.toString(defaultValue));
         if (propertyValue.length() == 1) {
             return propertyValue.charAt(0);
         }
         return defaultValue;
     }
 
-    private InitialPositionInStream getInitialPositionInStreamProperty(String property,
-            InitialPositionInStream defaultInitialPositionInInputStream,
-            Properties properties) {
-        String propertyValue = properties.getProperty(property, defaultInitialPositionInInputStream.toString());
+    private InitialPositionInStream getInitialPositionInStreamProperty(
+            final String property,
+            final InitialPositionInStream defaultInitialPositionInInputStream,
+            final Properties properties) {
+        final String propertyValue = properties.getProperty(property, defaultInitialPositionInInputStream.toString());
         try {
             return InitialPositionInStream.valueOf(propertyValue);
         } catch (Exception e) {
