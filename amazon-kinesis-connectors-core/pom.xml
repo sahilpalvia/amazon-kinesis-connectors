@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>amazon-kinesis-connectors-common</artifactId>
+    <artifactId>amazon-kinesis-connectors-core</artifactId>
 
     <dependencies>
         <dependency>

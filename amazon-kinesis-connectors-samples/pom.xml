@@ -49,7 +49,7 @@
 
     <dependency>
       <groupId>${parent.groupId}</groupId>
-      <artifactId>amazon-kinesis-connectors-common</artifactId>
+      <artifactId>amazon-kinesis-connectors-core</artifactId>
       <version>${parent.version}</version>
     </dependency>
 
