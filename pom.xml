@@ -24,7 +24,7 @@
     </scm>
     <modules>
         <module>amazon-kinesis-connector-dynamodb</module>
-        <module>amazon-kinesis-connectors-common</module>
+        <module>amazon-kinesis-connectors-core</module>
         <module>amazon-kinesis-connector-elasticsearch</module>
         <module>amazon-kinesis-connector-s3</module>
         <module>amazon-kinesis-connector-redshift</module>
