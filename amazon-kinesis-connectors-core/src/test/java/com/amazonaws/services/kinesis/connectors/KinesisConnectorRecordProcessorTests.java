@@ -14,6 +14,31 @@
  */
 package com.amazonaws.services.kinesis.connectors;
 
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.kinesis.clientlibrary.exceptions.InvalidStateException;
+import com.amazonaws.services.kinesis.clientlibrary.exceptions.KinesisClientLibDependencyException;
+import com.amazonaws.services.kinesis.clientlibrary.exceptions.ShutdownException;
+import com.amazonaws.services.kinesis.clientlibrary.exceptions.ThrottlingException;
+import com.amazonaws.services.kinesis.clientlibrary.interfaces.IRecordProcessorCheckpointer;
+import com.amazonaws.services.kinesis.clientlibrary.lib.worker.KinesisClientLibConfiguration;
+import com.amazonaws.services.kinesis.clientlibrary.lib.worker.ShutdownReason;
+import com.amazonaws.services.kinesis.connectors.impl.KinesisConnectorRecordProcessorForTest;
+import com.amazonaws.services.kinesis.connectors.impl.UnmodifiableBuffer;
+import com.amazonaws.services.kinesis.connectors.interfaces.IBuffer;
+import com.amazonaws.services.kinesis.connectors.interfaces.ICollectionTransformer;
+import com.amazonaws.services.kinesis.connectors.interfaces.IEmitter;
+import com.amazonaws.services.kinesis.connectors.interfaces.IFilter;
+import com.amazonaws.services.kinesis.connectors.interfaces.IKinesisConnectorPipeline;
+import com.amazonaws.services.kinesis.connectors.interfaces.ITransformer;
+import com.amazonaws.services.kinesis.connectors.interfaces.ITransformerBase;
+import com.amazonaws.services.kinesis.model.Record;
+import org.easymock.EasyMock;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -21,39 +46,33 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
-import org.junit.Before;
-import org.junit.Test;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.services.kinesis.clientlibrary.exceptions.InvalidStateException;
-import com.amazonaws.services.kinesis.clientlibrary.exceptions.KinesisClientLibDependencyException;
-import com.amazonaws.services.kinesis.clientlibrary.exceptions.ShutdownException;
-import com.amazonaws.services.kinesis.clientlibrary.exceptions.ThrottlingException;
-import com.amazonaws.services.kinesis.clientlibrary.interfaces.IRecordProcessorCheckpointer;
-import com.amazonaws.services.kinesis.clientlibrary.lib.worker.ShutdownReason;
-import com.amazonaws.services.kinesis.connectors.KinesisConnectorConfiguration;
-import com.amazonaws.services.kinesis.connectors.KinesisConnectorRecordProcessor;
-import com.amazonaws.services.kinesis.connectors.UnmodifiableBuffer;
-import com.amazonaws.services.kinesis.connectors.interfaces.IBuffer;
-import com.amazonaws.services.kinesis.connectors.interfaces.ICollectionTransformer;
-import com.amazonaws.services.kinesis.connectors.interfaces.IEmitter;
-import com.amazonaws.services.kinesis.connectors.interfaces.IFilter;
-import com.amazonaws.services.kinesis.connectors.interfaces.ITransformer;
-import com.amazonaws.services.kinesis.connectors.interfaces.ITransformerBase;
-import com.amazonaws.services.kinesis.model.Record;
-
+@RunWith(MockitoJUnitRunner.class)
 public class KinesisConnectorRecordProcessorTests {
-    // control object used to create mock dependencies
-    IMocksControl control;
-
     // Dependencies to be mocked
+    @Mock
+    IKinesisConnectorPipeline<Object, Object> pipeline;
+    @Mock
     IEmitter<Object> emitter;
+    @Mock
     ITransformer<Object, Object> transformer;
+    @Mock
     IBuffer<Object> buffer;
+    @Mock
     IFilter<Object> filter;
+    @Mock
     IRecordProcessorCheckpointer checkpointer;
+
     KinesisConnectorConfiguration configuration;
 
     // used when generating dummy records and verifying behavior
@@ -63,40 +82,25 @@ public class KinesisConnectorRecordProcessorTests {
 
     @Before
     @SuppressWarnings("unchecked")
-    public void setUp() {
-        // control object used to create mock dependencies
-        control = EasyMock.createControl();
-
-        // mock dependencies
-        emitter = control.createMock(IEmitter.class);
-        transformer = control.createMock(ITransformer.class);
-        buffer = control.createMock(IBuffer.class);
-        filter = control.createMock(IFilter.class);
-        checkpointer = control.createMock(IRecordProcessorCheckpointer.class);
-        // use a real configuration to get actual default values (not anything created by EasyMock)
+    public void setUp() throws InvalidStateException, ShutdownException {
         configuration = new KinesisConnectorConfiguration(new Properties(), new DefaultAWSCredentialsProviderChain());
 
+        setupRecordProcessor(configuration);
+
+        when(buffer.getLastSequenceNumber()).thenReturn(DEFAULT_SEQUENCE_NUMBER);
+        when(buffer.shouldFlush()).thenReturn(true);
+
+        doNothing().when(checkpointer).checkpoint(eq(DEFAULT_SEQUENCE_NUMBER));
+        doNothing().when(buffer).clear();
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNullBuffer() {
-        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessor<Object, Object>(
-                null, filter, emitter, transformer, configuration);
+    public void testNullPipeline() {
+        new KinesisConnectorRecordProcessorForTest<>(null, configuration);
     }
     @Test(expected = IllegalArgumentException.class)
-    public void testNullFilter() {
-        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessor<Object, Object>(
-                buffer, null, emitter, transformer, configuration);
-    }
-    @Test(expected = IllegalArgumentException.class)
-    public void testNullEmitter() {
-        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessor<Object, Object>(
-                buffer, filter, null, transformer, configuration);
-    }
-    @Test(expected = IllegalArgumentException.class)
-    public void testNullTransformer() {
-        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessor<Object, Object>(
-                buffer, filter, emitter, null, configuration);
+    public void testNullConfiguration() {
+        new KinesisConnectorRecordProcessorForTest<>(pipeline, null);
     }
 
     /**
@@ -104,81 +108,42 @@ public class KinesisConnectorRecordProcessorTests {
      */
     @Test(expected = IllegalStateException.class)
     public void testProcessRecordsCalledBeforeInitialize() {
-        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessor<Object, Object>(
-                buffer, filter, emitter, transformer, configuration);
+        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessorForTest<>(pipeline, configuration);
         kcrp.processRecords(Collections.EMPTY_LIST, checkpointer);
     }
 
-     /**
-      * Test process records under normal conditions.
-      */
+    /**
+     * Test process records under normal conditions.
+     */
     @Test
     @SuppressWarnings("unchecked")
     public void testProcessRecords() throws ThrottlingException, ShutdownException, IOException,
             KinesisClientLibDependencyException, InvalidStateException {
-        // Test Variables
         Object dummyRecord = new Object();
         int numRecords = 5;
         String shardId = "shardId";
-
-        // reset the control to mock new behavior
-        control.reset();
-
-        // Transformer Behavior:
-        // transform numRecords records into dummyRecord objects
-        EasyMock.expect(transformer.toClass(EasyMock.anyObject(Record.class))).andReturn(dummyRecord);
-        EasyMock.expectLastCall().times(numRecords -1).andReturn(dummyRecord);
-
-        // Filter Behavior:
-        // return true for all records
-        EasyMock.expect(filter.keepRecord(dummyRecord)).andReturn(true);
-        EasyMock.expectLastCall().times(numRecords -1).andReturn(true);
-
-        // Mock arguments
-        Object o = EasyMock.anyObject();
-        int buf = EasyMock.anyInt();
-
-        // Buffer Behavior:
-        // consume numRecords dummy records
-        buffer.consumeRecord(o, buf, EasyMock.anyObject(String.class));
-        EasyMock.expectLastCall().times(numRecords);
-        buffer.getLastSequenceNumber();
-        EasyMock.expectLastCall().andReturn(DEFAULT_SEQUENCE_NUMBER);
-        buffer.clear();
-        EasyMock.expectLastCall();
-
-        // check full buffer and return true
-        EasyMock.expect(buffer.shouldFlush()).andReturn(true);
-
-        // call buffer.getRecords
-        List<Object> objects = new ArrayList<>();
         Object item = new Object();
+        List<Object> objects = new ArrayList<>();
+
         objects.add(item);
-        EasyMock.expect(buffer.getRecords()).andReturn(objects);
-        EasyMock.expect(transformer.fromClass(item)).andReturn(item);
 
-        // Emitter behavior:
-        // one call to emit
-        EasyMock.expect(emitter.emit(EasyMock.anyObject(UnmodifiableBuffer.class))).andReturn(
-                Collections.emptyList());
+        when(transformer.toClass(any(Record.class))).thenReturn(dummyRecord);
+        when(filter.keepRecord(eq(dummyRecord))).thenReturn(true);
+        when(buffer.getRecords()).thenReturn(objects);
+        when(transformer.fromClass(item)).thenReturn(item);
+        when(emitter.emit(any(UnmodifiableBuffer.class))).thenReturn(Collections.emptyList());
 
-        // Checkpointer Behavior:
-        // one call to checkpoint
-        checkpointer.checkpoint(DEFAULT_SEQUENCE_NUMBER);
-        EasyMock.expectLastCall();
+        doNothing().when(buffer).consumeRecord(any(), anyInt(), anyString());
 
-        // Initialize class under test
-        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessor<Object, Object>(
-                buffer, filter, emitter, transformer, configuration);
+        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessorForTest<>(pipeline, configuration);
         kcrp.initialize(shardId);
-
-        // Prepare controller for method call
-        control.replay();
-
-        // call method
         kcrp.processRecords(getDummyRecordList(numRecords), checkpointer);
 
-        control.verify();
+        verify(transformer, times(numRecords)).toClass(any(Record.class));
+        verify(buffer, times(1)).getLastSequenceNumber();
+        verify(buffer, times(1)).clear();
+        verify(emitter, times(1)).emit(any(UnmodifiableBuffer.class));
+        verify(checkpointer, times(1)).checkpoint(eq(DEFAULT_SEQUENCE_NUMBER));
     }
 
     /**
@@ -192,54 +157,22 @@ public class KinesisConnectorRecordProcessorTests {
         int numRecords = 5;
         String shardId = "shardId";
 
-        // reset the control to mock new behavior
-        control.reset();
+        when(transformer.toClass(any(Record.class))).thenReturn(dummyRecord);
+        when(filter.keepRecord(dummyRecord)).thenReturn(true);
+        when(buffer.getRecords()).thenReturn(Collections.emptyList());
+        when(emitter.emit(any(UnmodifiableBuffer.class))).thenThrow(new IOException());
 
-        // Transformer Behavior:
-        // transform numRecords records into dummyRecord objects
-        EasyMock.expect(transformer.toClass(EasyMock.anyObject(Record.class))).andReturn(dummyRecord);
-        EasyMock.expectLastCall().times(numRecords - 1).andReturn(dummyRecord);
+        doNothing().when(buffer).consumeRecord(any(), anyInt(), anyString());
+        doNothing().when(emitter).fail(anyList());
 
-        // Filter Behavior:
-        // return true for all records
-        EasyMock.expect(filter.keepRecord(dummyRecord)).andReturn(true);
-        EasyMock.expectLastCall().times(numRecords -1).andReturn(true);
-
-        // Mock arguments
-        Object o = EasyMock.anyObject();
-        int buf = EasyMock.anyInt();
-        String seq = EasyMock.anyObject(String.class);
-
-        // Buffer Behavior:
-        // consume numRecords dummy records
-        buffer.consumeRecord(o, buf, seq);
-        EasyMock.expectLastCall().times(numRecords);
-
-        // check full buffer and return true
-        EasyMock.expect(buffer.shouldFlush()).andReturn(true);
-
-        // call buffer.getRecords
-        EasyMock.expect(buffer.getRecords()).andReturn(Collections.emptyList());
-
-        // Emitter behavior:
-        // one call to emit
-        EasyMock.expect(emitter.emit(EasyMock.anyObject(UnmodifiableBuffer.class))).andThrow(
-                new IOException());
-        emitter.fail(EasyMock.anyObject(List.class));
-        EasyMock.expectLastCall();
-
-        // Initialize class under test
-        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessor<Object, Object>(
-                buffer, filter, emitter, transformer, configuration);
+        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessorForTest<>(pipeline, configuration);
         kcrp.initialize(shardId);
-
-        // Prepare controller for method call
-        control.replay();
-
-        // call method
         kcrp.processRecords(getDummyRecordList(numRecords), checkpointer);
 
-        control.verify();
+        verify(transformer, times(numRecords)).toClass(any(Record.class));
+        verify(filter, times(numRecords)).keepRecord(eq(dummyRecord));
+        verify(buffer, times(numRecords)).consumeRecord(any(), anyInt(), anyString());
+        verify(emitter, times(1)).fail(anyList());
     }
 
     /**
@@ -247,78 +180,39 @@ public class KinesisConnectorRecordProcessorTests {
      */
     @Test
     @SuppressWarnings("unchecked")
-    public void testProcessBatchedRecords() throws ThrottlingException, ShutdownException, IOException,
-    KinesisClientLibDependencyException, InvalidStateException {
-        // Test Variables
+    public void testProcessBatchedRecords() throws ThrottlingException, ShutdownException,
+            IOException, KinesisClientLibDependencyException, InvalidStateException {
         Object dummyRecord1 = new Object();
         Object dummyRecord2= new Object();
         List<Object> dummyCollection = new ArrayList<>();
-        dummyCollection.add(dummyRecord1);
-        dummyCollection.add(dummyRecord2);
-
-        // 5 Kinesis records, with 2 objects per. So 10 total records
         int numRecords = 5;
         int numTotalRecords = numRecords * 2;
         String shardId = "shardId";
-        // Override existing transformer with a collection transformer
-        ICollectionTransformer<Object,Object> collectionTransformer = control.createMock(ICollectionTransformer.class);
+        ICollectionTransformer<Object,Object> collectionTransformer = mock(ICollectionTransformer.class);
 
-        // reset the control to mock new behavior
-        control.reset();
+        dummyCollection.add(dummyRecord1);
+        dummyCollection.add(dummyRecord2);
 
-        // Transformer Behavior:
-        // transform numRecords records into dummyRecord objects
-        EasyMock.expect(collectionTransformer.toClass(EasyMock.anyObject(Record.class))).andReturn(dummyCollection);
-        EasyMock.expectLastCall().times(numRecords -1).andReturn(dummyCollection);
+        when(pipeline.getTransformer(eq(configuration))).thenReturn(collectionTransformer);
+        when(collectionTransformer.toClass(any(Record.class))).thenReturn(dummyCollection);
+        when(filter.keepRecord(dummyRecord1)).thenReturn(true);
+        when(filter.keepRecord(dummyRecord2)).thenReturn(true);
+        when(buffer.getRecords()).thenReturn(Collections.emptyList());
+        when(emitter.emit(any(UnmodifiableBuffer.class))).thenReturn(Collections.emptyList());
 
-        // Filter Behavior:
-        // return true for all records
-        EasyMock.expect(filter.keepRecord(dummyRecord1)).andReturn(true);
-        EasyMock.expectLastCall().times(numRecords -1).andReturn(true);
-        EasyMock.expect(filter.keepRecord(dummyRecord2)).andReturn(true);
-        EasyMock.expectLastCall().times(numRecords -1).andReturn(true);
+        doNothing().when(buffer).consumeRecord(any(), anyInt(), anyString());
 
-        // Mock arguments
-        Object o = EasyMock.anyObject();
-        int buf = EasyMock.anyInt();
-
-        // Buffer Behavior:
-        // consume numRecords dummy records
-        buffer.consumeRecord(o, buf, EasyMock.anyObject(String.class));
-        EasyMock.expectLastCall().times(numTotalRecords);
-        buffer.getLastSequenceNumber();
-        EasyMock.expectLastCall().andReturn(DEFAULT_SEQUENCE_NUMBER);
-        buffer.clear();
-        EasyMock.expectLastCall();
-
-        // check full buffer and return true
-        EasyMock.expect(buffer.shouldFlush()).andReturn(true);
-
-        // call buffer.getRecords
-        EasyMock.expect(buffer.getRecords()).andReturn(Collections.emptyList());
-
-        // Emitter behavior:
-        // one call to emit
-        EasyMock.expect(emitter.emit(EasyMock.anyObject(UnmodifiableBuffer.class))).andReturn(
-                Collections.emptyList());
-
-        // Checkpointer Behavior:
-        // one call to checkpoint
-        checkpointer.checkpoint(DEFAULT_SEQUENCE_NUMBER);
-        EasyMock.expectLastCall();
-
-        // Initialize class under test
-        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessor<Object, Object>(
-                buffer, filter, emitter, collectionTransformer, configuration);
+        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessorForTest<>(pipeline, configuration);
         kcrp.initialize(shardId);
-
-        // Prepare controller for method call
-        control.replay();
-
-        // call method
         kcrp.processRecords(getDummyRecordList(numRecords), checkpointer);
 
-        control.verify();
+        verify(collectionTransformer, times(numRecords)).toClass(any(Record.class));
+        verify(filter, times(numRecords)).keepRecord(eq(dummyRecord1));
+        verify(filter, times(numRecords)).keepRecord(eq(dummyRecord2));
+        verify(buffer, times(numTotalRecords)).consumeRecord(any(), anyInt(), anyString());
+        verify(buffer, times(1)).getLastSequenceNumber();
+        verify(buffer, times(1)).clear();
+        verify(checkpointer, times(1)).checkpoint(eq(DEFAULT_SEQUENCE_NUMBER));
     }
 
     /**
@@ -326,150 +220,88 @@ public class KinesisConnectorRecordProcessorTests {
      */
     @Test
     public void testRetryBehavior() throws IOException, KinesisClientLibDependencyException, InvalidStateException, ThrottlingException, ShutdownException {
-        // Test Variables
         Object dummyRecord1 = new Object();
         Object dummyRecord2= new Object();
-        List<Object> objectsAsList = new ArrayList<Object>();
-        objectsAsList.add(dummyRecord1);
-        objectsAsList.add(dummyRecord2);
-
-        List<Object> singleObjectAsList = new ArrayList<Object>();
-        singleObjectAsList.add(dummyRecord1);
+        List<Object> objectsAsList = new ArrayList<>();
+        List<Object> singleObjectAsList = new ArrayList<>();
         String shardId = "shardId";
-
         Properties props = new Properties();
-        // set backoff interval to 0 to speed up test
+
+        objectsAsList.add(dummyRecord2);
+        objectsAsList.add(dummyRecord1);
+        singleObjectAsList.add(dummyRecord1);
         props.setProperty(KinesisConnectorConfiguration.PROP_BACKOFF_INTERVAL, String.valueOf(0));
-        // set retry limit to allow for retry below
         props.setProperty(KinesisConnectorConfiguration.PROP_RETRY_LIMIT, String.valueOf(2));
         configuration = new KinesisConnectorConfiguration(props, new DefaultAWSCredentialsProviderChain());
 
-        // reset the control to mock new behavior
-        control.reset();
+        setupRecordProcessor(configuration);
 
-        // set expectations for each record
-        EasyMock.expect(transformer.toClass(EasyMock.anyObject(Record.class))).andReturn(dummyRecord1);
-        EasyMock.expect(filter.keepRecord(dummyRecord1)).andReturn(true);
-        buffer.consumeRecord(dummyRecord1, DEFAULT_RECORD_BYTE_SIZE, DEFAULT_SEQUENCE_NUMBER);
+        when(transformer.toClass(any(Record.class))).thenReturn(dummyRecord1, dummyRecord2);
+        when(filter.keepRecord(dummyRecord1)).thenReturn(true);
+        when(filter.keepRecord(dummyRecord2)).thenReturn(true);
+        when(buffer.getRecords()).thenReturn(objectsAsList);
+        when(transformer.fromClass(dummyRecord1)).thenReturn(dummyRecord1);
+        when(transformer.fromClass(dummyRecord2)).thenReturn(dummyRecord2);
 
-        EasyMock.expect(transformer.toClass(EasyMock.anyObject(Record.class))).andReturn(dummyRecord2);
-        EasyMock.expect(filter.keepRecord(dummyRecord2)).andReturn(true);
-        buffer.consumeRecord(dummyRecord2, DEFAULT_RECORD_BYTE_SIZE, DEFAULT_SEQUENCE_NUMBER);
-
-        EasyMock.expect(buffer.shouldFlush()).andReturn(true);
-
-        // call Buffer.getRecords
-        EasyMock.expect(buffer.getRecords()).andReturn(objectsAsList);
-
-        // Transform back
-        EasyMock.expect(transformer.fromClass(dummyRecord1)).andReturn(dummyRecord1);
-        EasyMock.expect(transformer.fromClass(dummyRecord2)).andReturn(dummyRecord2);
-
-        // Emitter behavior:
-        // one call to emit which fails (test a transient issue), and then returns empty on second call
-
-        // uses the original list (i.e. emitItems)
         UnmodifiableBuffer<Object> unmodBuffer = new UnmodifiableBuffer<>(buffer, objectsAsList);
-        EasyMock.expect(emitter.emit(EasyMock.eq(unmodBuffer))).andReturn(singleObjectAsList);
-        // uses the returned list (i.e. unprocessed)
+        when(emitter.emit(eq(unmodBuffer))).thenReturn(singleObjectAsList);
+
         unmodBuffer = new UnmodifiableBuffer<>(buffer, singleObjectAsList);
-        EasyMock.expect(emitter.emit(EasyMock.eq(unmodBuffer))).andReturn(Collections.emptyList());
+        when(emitter.emit(eq(unmodBuffer))).thenReturn(Collections.emptyList());
 
-        // Done, so expect buffer clear and checkpoint
-        buffer.getLastSequenceNumber();
-        EasyMock.expectLastCall().andReturn(DEFAULT_SEQUENCE_NUMBER);
-        buffer.clear();
-        EasyMock.expectLastCall();
-        checkpointer.checkpoint(DEFAULT_SEQUENCE_NUMBER);
-        EasyMock.expectLastCall();
+        doNothing().when(buffer).consumeRecord(eq(dummyRecord1), eq(DEFAULT_RECORD_BYTE_SIZE), eq(DEFAULT_SEQUENCE_NUMBER));
+        doNothing().when(buffer).consumeRecord(eq(dummyRecord2), eq(DEFAULT_RECORD_BYTE_SIZE), eq(DEFAULT_SEQUENCE_NUMBER));
 
-        // Initialize class under test
-        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessor<Object, Object>(
-                buffer, filter, emitter, transformer, configuration);
+        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessorForTest<>(pipeline, configuration);
         kcrp.initialize(shardId);
-
-        // Prepare controller for method call
-        control.replay();
-
-        // call method
         kcrp.processRecords(getDummyRecordList(objectsAsList.size()), checkpointer);
 
-        control.verify();
+        verify(buffer, times(1)).getLastSequenceNumber();
+        verify(buffer, times(1)).clear();
+        verify(checkpointer, times(1)).checkpoint(DEFAULT_SEQUENCE_NUMBER);
     }
     /**
      * Test fail called when all retries done.
      */
     @Test
     public void testFailAfterRetryLimitReached() throws IOException, KinesisClientLibDependencyException, InvalidStateException, ThrottlingException, ShutdownException {
-        // Test Variables
         Object dummyRecord1 = new Object();
         Object dummyRecord2= new Object();
-        List<Object> objectsAsList = new ArrayList<Object>();
+        List<Object> objectsAsList = new ArrayList<>();
+        List<Object> singleObjectAsList = new ArrayList<>();
+        String shardId = "shardId";
+        Properties props = new Properties();
+        UnmodifiableBuffer<Object> unmodBuffer = new UnmodifiableBuffer<>(buffer, objectsAsList);
+
         objectsAsList.add(dummyRecord1);
         objectsAsList.add(dummyRecord2);
-
-        List<Object> singleObjectAsList = new ArrayList<Object>();
         singleObjectAsList.add(dummyRecord1);
-        String shardId = "shardId";
-
-        Properties props = new Properties();
-        // set backoff interval to 0 to speed up test
         props.setProperty(KinesisConnectorConfiguration.PROP_BACKOFF_INTERVAL, String.valueOf(0));
-        // set retry limit to allow for retry below (1)
         props.setProperty(KinesisConnectorConfiguration.PROP_RETRY_LIMIT, String.valueOf(1));
         configuration = new KinesisConnectorConfiguration(props, new DefaultAWSCredentialsProviderChain());
 
-        // reset the control to mock new behavior
-        control.reset();
+        setupRecordProcessor(configuration);
 
-        // set expectations for each record
-        EasyMock.expect(transformer.toClass(EasyMock.anyObject(Record.class))).andReturn(dummyRecord1);
-        EasyMock.expect(filter.keepRecord(dummyRecord1)).andReturn(true);
-        buffer.consumeRecord(dummyRecord1, DEFAULT_RECORD_BYTE_SIZE, DEFAULT_SEQUENCE_NUMBER);
+        when(transformer.toClass(any(Record.class))).thenReturn(dummyRecord1);
+        when(filter.keepRecord(dummyRecord1)).thenReturn(true);
+        when(transformer.toClass(any(Record.class))).thenReturn(dummyRecord2);
+        when(filter.keepRecord(dummyRecord2)).thenReturn(true);
+        when(buffer.getRecords()).thenReturn(objectsAsList);
+        when(transformer.fromClass(dummyRecord1)).thenReturn(dummyRecord1);
+        when(emitter.emit(eq(unmodBuffer))).thenReturn(singleObjectAsList);
+        when(transformer.fromClass(dummyRecord2)).thenReturn(dummyRecord2);
 
-        EasyMock.expect(transformer.toClass(EasyMock.anyObject(Record.class))).andReturn(dummyRecord2);
-        EasyMock.expect(filter.keepRecord(dummyRecord2)).andReturn(true);
-        buffer.consumeRecord(dummyRecord2, DEFAULT_RECORD_BYTE_SIZE, DEFAULT_SEQUENCE_NUMBER);
+        doNothing().when(buffer).consumeRecord(eq(dummyRecord1), eq(DEFAULT_RECORD_BYTE_SIZE), eq(DEFAULT_SEQUENCE_NUMBER));
+        doNothing().when(buffer).consumeRecord(eq(dummyRecord2), eq(DEFAULT_RECORD_BYTE_SIZE), eq(DEFAULT_SEQUENCE_NUMBER));
+        doNothing().when(emitter).fail(eq(singleObjectAsList));
 
-        EasyMock.expect(buffer.shouldFlush()).andReturn(true);
-
-        // call Buffer.getRecords
-        EasyMock.expect(buffer.getRecords()).andReturn(objectsAsList);
-
-        // Transform back
-        EasyMock.expect(transformer.fromClass(dummyRecord1)).andReturn(dummyRecord1);
-        EasyMock.expect(transformer.fromClass(dummyRecord2)).andReturn(dummyRecord2);
-
-        // Emitter behavior:
-        // one call to emit which fails (test a transient issue), and then returns empty on second call
-
-        // uses the original list (i.e. emitItems)
-        UnmodifiableBuffer<Object> unmodBuffer = new UnmodifiableBuffer<>(buffer, objectsAsList);
-        EasyMock.expect(emitter.emit(EasyMock.eq(unmodBuffer))).andReturn(singleObjectAsList);
-
-        // only one retry, so now we should expect fail to be called.
-        emitter.fail(singleObjectAsList);
-
-        // Done, so expect buffer clear and checkpoint
-        buffer.getLastSequenceNumber();
-        EasyMock.expectLastCall().andReturn(DEFAULT_SEQUENCE_NUMBER);
-        buffer.clear();
-        EasyMock.expectLastCall();
-        checkpointer.checkpoint(DEFAULT_SEQUENCE_NUMBER);
-        EasyMock.expectLastCall();
-
-        // Initialize class under test
-        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessor<Object, Object>(
-                buffer, filter, emitter, transformer, configuration);
+        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessorForTest<>(pipeline, configuration);
         kcrp.initialize(shardId);
-
-        // Prepare controller for method call
-        control.replay();
-
-        // call method
         kcrp.processRecords(getDummyRecordList(objectsAsList.size()), checkpointer);
 
-        control.verify();
+        verify(buffer, times(1)).getLastSequenceNumber();
+        verify(buffer, times(1)).clear();
+        verify(checkpointer, times(1)).checkpoint(eq(DEFAULT_SEQUENCE_NUMBER));
     }
     /**
      * Test process records with ITransformerBase should throw exception.
@@ -478,19 +310,15 @@ public class KinesisConnectorRecordProcessorTests {
     @SuppressWarnings("unchecked")
     public void testBadTransformer() throws ThrottlingException, ShutdownException, IOException,
     KinesisClientLibDependencyException, InvalidStateException {
-        // Test Variables
         String shardId = "shardId";
         int numRecords = 5;
 
-        // Override existing transformer with a collection transformer
-        ITransformerBase<Object,Object> baseTransformer = control.createMock(ITransformerBase.class);
+        ITransformerBase<Object,Object> baseTransformer = mock(ITransformerBase.class);
 
-        // Initialize class under test
-        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessor<Object, Object>(
-                buffer, filter, emitter, baseTransformer, configuration);
+        when(pipeline.getTransformer(eq(configuration))).thenReturn(baseTransformer);
+
+        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessorForTest<>(pipeline, configuration);
         kcrp.initialize(shardId);
-
-        // call method, expect exception thrown
         kcrp.processRecords(getDummyRecordList(numRecords), checkpointer);
     }
 
@@ -499,54 +327,34 @@ public class KinesisConnectorRecordProcessorTests {
      */
     @Test
     public void testShutdownZombie() {
-        // reset the control to mock new behavior
-        control.reset();
-        // expect shutdown to be called on emitter
-        emitter.shutdown();
-        EasyMock.expectLastCall();
+        doNothing().when(emitter).shutdown();
 
-        // Prepare controller for method call
-        control.replay();
-
-        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessor<Object, Object>(
-                buffer, filter, emitter, transformer, configuration);
+        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessorForTest<>(pipeline, configuration);
         kcrp.shutdown(checkpointer, ShutdownReason.ZOMBIE);
 
-        control.verify();
+        verify(emitter, times(1)).shutdown();
     }
 
     /**
      * expect buffer flush, emit and checkpoint to happen on ShutdownReason.TERMINATE
      */
     @Test
-    public void testShutdownTerminate() throws IOException, KinesisClientLibDependencyException, InvalidStateException, ThrottlingException, ShutdownException {
-        // reset the control to mock new behavior
-        control.reset();
+    public void testShutdownTerminate() throws IOException, KinesisClientLibDependencyException, InvalidStateException,
+            ThrottlingException, ShutdownException {
+        when(buffer.getRecords()).thenReturn(Collections.emptyList());
+        when(emitter.emit(any(UnmodifiableBuffer.class))).thenReturn(Collections.emptyList());
+        when(buffer.getLastSequenceNumber()).thenReturn(null);
 
-        // expect flush cycle.
-        // Get records from buffer, emit, clear, then checkpoint
-        EasyMock.expect(buffer.getRecords()).andReturn(Collections.emptyList());
-        EasyMock.expect(emitter.emit(EasyMock.anyObject(UnmodifiableBuffer.class))).andReturn(
-                Collections.emptyList());
-        buffer.getLastSequenceNumber();
-        EasyMock.expectLastCall().andReturn(null);
-        buffer.clear();
-        EasyMock.expectLastCall();
-        checkpointer.checkpoint();
-        EasyMock.expectLastCall();
+        doNothing().when(checkpointer).checkpoint();
+        doNothing().when(emitter).shutdown();
 
-        // expect shutdown to be called on emitter
-        emitter.shutdown();
-        EasyMock.expectLastCall();
-
-        // Prepare controller for method call
-        control.replay();
-
-        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessor<Object, Object>(
-                buffer, filter, emitter, transformer, configuration);
+        KinesisConnectorRecordProcessor<Object, Object> kcrp = new KinesisConnectorRecordProcessorForTest<>(pipeline, configuration);
         kcrp.shutdown(checkpointer, ShutdownReason.TERMINATE);
 
-        control.verify();
+        verify(buffer, times(1)).clear();
+        verify(checkpointer, times(1)).checkpoint();
+        verify(emitter, times(1)).shutdown();
+        verify(buffer, times(1)).getLastSequenceNumber();
     }
 
     private List<Record> getDummyRecordList(int length) {
@@ -559,8 +367,14 @@ public class KinesisConnectorRecordProcessorTests {
             dummyRecord.setSequenceNumber(DEFAULT_SEQUENCE_NUMBER);
             list.add(dummyRecord);
         }
-
         return list;
+    }
+
+    private void setupRecordProcessor(KinesisConnectorConfiguration configuration) {
+        when(pipeline.getBuffer(eq(configuration))).thenReturn(buffer);
+        when(pipeline.getFilter(eq(configuration))).thenReturn(filter);
+        when(pipeline.getEmitter(eq(configuration))).thenReturn(emitter);
+        when(pipeline.getTransformer(eq(configuration))).thenReturn(transformer);
     }
 
 }

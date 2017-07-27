@@ -14,13 +14,13 @@
  */
 package samples.dynamodb;
 
-import java.util.Map;
-
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.kinesis.connectors.KinesisConnectorRecordProcessorFactory;
+import com.amazonaws.services.kinesis.connectors.impl.KinesisSampleConnectorRecordProcessorFactory;
 import samples.KinesisConnectorExecutor;
 import samples.KinesisMessageModel;
 
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.kinesis.connectors.KinesisConnectorRecordProcessorFactory;
+import java.util.Map;
 
 /**
  * The Executor for the Amazon DynamoDB emitter sample.
@@ -41,8 +41,7 @@ public class DynamoDBExecutor extends KinesisConnectorExecutor<KinesisMessageMod
     @Override
     public KinesisConnectorRecordProcessorFactory<KinesisMessageModel, Map<String, AttributeValue>>
             getKinesisConnectorRecordProcessorFactory() {
-        return new KinesisConnectorRecordProcessorFactory<>(new DynamoDBMessageModelPipeline(),
-                config);
+        return new KinesisSampleConnectorRecordProcessorFactory<>(new DynamoDBMessageModelPipeline(), config);
     }
 
     /**

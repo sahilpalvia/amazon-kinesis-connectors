@@ -14,6 +14,7 @@
  */
 package samples.redshiftmanifest;
 
+import com.amazonaws.services.kinesis.connectors.impl.KinesisSampleConnectorRecordProcessorFactory;
 import samples.KinesisConnectorExecutor;
 import samples.KinesisMessageModel;
 
@@ -37,7 +38,7 @@ public class RedshiftManifestExecutor extends KinesisConnectorExecutor<String, S
 
     @Override
     public KinesisConnectorRecordProcessorFactory<String, String> getKinesisConnectorRecordProcessorFactory() {
-        return new KinesisConnectorRecordProcessorFactory<>(new RedshiftManifestPipeline(), config);
+        return new KinesisSampleConnectorRecordProcessorFactory<>(new RedshiftManifestPipeline(), config);
     }
 
     private static String REDSHIFT_CONFIG_FILE = "RedshiftManifestSample.properties";

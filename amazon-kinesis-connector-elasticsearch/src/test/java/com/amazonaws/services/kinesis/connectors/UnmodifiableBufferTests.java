@@ -17,6 +17,7 @@ package com.amazonaws.services.kinesis.connectors;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.amazonaws.services.kinesis.connectors.impl.UnmodifiableBuffer;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.junit.Before;
@@ -24,9 +25,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import com.amazonaws.services.kinesis.connectors.UnmodifiableBuffer;
 import com.amazonaws.services.kinesis.connectors.interfaces.IBuffer;
 
 public class UnmodifiableBufferTests {

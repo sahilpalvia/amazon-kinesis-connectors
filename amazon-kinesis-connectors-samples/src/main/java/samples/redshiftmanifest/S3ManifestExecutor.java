@@ -14,6 +14,7 @@
  */
 package samples.redshiftmanifest;
 
+import com.amazonaws.services.kinesis.connectors.impl.KinesisSampleConnectorRecordProcessorFactory;
 import samples.KinesisConnectorExecutor;
 import samples.KinesisMessageModel;
 
@@ -36,6 +37,6 @@ public class S3ManifestExecutor extends KinesisConnectorExecutor<KinesisMessageM
 
     @Override
     public KinesisConnectorRecordProcessorFactory<KinesisMessageModel, byte[]> getKinesisConnectorRecordProcessorFactory() {
-        return new KinesisConnectorRecordProcessorFactory<>(new S3ManifestPipeline(), config);
+        return new KinesisSampleConnectorRecordProcessorFactory<>(new S3ManifestPipeline(), config);
     }
 }

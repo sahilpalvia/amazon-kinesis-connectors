@@ -39,8 +39,7 @@ import com.amazonaws.services.kinesis.connectors.interfaces.ITransformer;
  * <li>{@link AllPassFilter}</li>
  * </ul>
  */
-public class DynamoDBMessageModelPipeline implements
-        IKinesisConnectorPipeline<KinesisMessageModel, Map<String, AttributeValue>> {
+public class DynamoDBMessageModelPipeline implements IKinesisConnectorPipeline<KinesisMessageModel, Map<String, AttributeValue>> {
 
     @Override
     public IEmitter<Map<String, AttributeValue>> getEmitter(KinesisConnectorConfiguration configuration) {

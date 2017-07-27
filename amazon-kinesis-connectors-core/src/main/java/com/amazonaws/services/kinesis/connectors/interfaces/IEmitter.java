@@ -17,7 +17,7 @@ package com.amazonaws.services.kinesis.connectors.interfaces;
 import java.io.IOException;
 import java.util.List;
 
-import com.amazonaws.services.kinesis.connectors.UnmodifiableBuffer;
+import com.amazonaws.services.kinesis.connectors.impl.UnmodifiableBuffer;
 
 /**
  * IEmitter takes a full buffer and processes the stored records. The IEmitter is a member of the
