@@ -22,10 +22,9 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.kinesis.AmazonKinesisClient;
 import com.amazonaws.services.kinesis.connectors.KinesisConnectorConfiguration;
-import com.amazonaws.services.kinesis.connectors.UnmodifiableBuffer;
+import com.amazonaws.services.kinesis.connectors.impl.UnmodifiableBuffer;
 import com.amazonaws.services.kinesis.model.PutRecordRequest;
 
 /**

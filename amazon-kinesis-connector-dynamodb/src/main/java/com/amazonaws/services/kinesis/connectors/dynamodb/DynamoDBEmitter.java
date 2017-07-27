@@ -35,7 +35,7 @@ import com.amazonaws.services.dynamodbv2.model.BatchWriteItemResult;
 import com.amazonaws.services.dynamodbv2.model.PutRequest;
 import com.amazonaws.services.dynamodbv2.model.WriteRequest;
 import com.amazonaws.services.kinesis.connectors.KinesisConnectorConfiguration;
-import com.amazonaws.services.kinesis.connectors.UnmodifiableBuffer;
+import com.amazonaws.services.kinesis.connectors.impl.UnmodifiableBuffer;
 import com.amazonaws.services.kinesis.connectors.interfaces.IEmitter;
 
 /**

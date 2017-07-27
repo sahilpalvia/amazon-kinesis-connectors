@@ -48,7 +48,7 @@ import org.junit.Test;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.kinesis.connectors.KinesisConnectorConfiguration;
-import com.amazonaws.services.kinesis.connectors.UnmodifiableBuffer;
+import com.amazonaws.services.kinesis.connectors.impl.UnmodifiableBuffer;
 
 public class ElasticsearchEmitterTest {
 

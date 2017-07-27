@@ -36,7 +36,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
 import com.amazonaws.services.kinesis.connectors.KinesisConnectorConfiguration;
-import com.amazonaws.services.kinesis.connectors.UnmodifiableBuffer;
+import com.amazonaws.services.kinesis.connectors.impl.UnmodifiableBuffer;
 import com.amazonaws.services.kinesis.connectors.interfaces.IEmitter;
 
 public class ElasticsearchEmitter implements IEmitter<ElasticsearchObject> {

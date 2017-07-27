@@ -107,8 +107,10 @@ public class BasicMemoryBuffer<T> implements IBuffer<T> {
     @Override
     public boolean shouldFlush() {
         long timelapseMillisecond = getCurrentTimeMilliseconds() - previousFlushTimeMillisecond;
-        return (!buffer.isEmpty())
-                && ((buffer.size() >= getNumRecordsToBuffer()) || (byteCount.get() >= getBytesToBuffer()) || (timelapseMillisecond >= getMillisecondsToBuffer()));
+        return (!buffer.isEmpty()) &&
+                ((buffer.size() >= getNumRecordsToBuffer()) ||
+                        (byteCount.get() >= getBytesToBuffer()) ||
+                        (timelapseMillisecond >= getMillisecondsToBuffer()));
     }
 
     @Override

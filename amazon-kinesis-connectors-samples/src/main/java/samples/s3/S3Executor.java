@@ -14,6 +14,7 @@
  */
 package samples.s3;
 
+import com.amazonaws.services.kinesis.connectors.impl.KinesisSampleConnectorRecordProcessorFactory;
 import samples.KinesisConnectorExecutor;
 import samples.KinesisMessageModel;
 
@@ -38,7 +39,7 @@ public class S3Executor extends KinesisConnectorExecutor<KinesisMessageModel, by
 
     @Override
     public KinesisConnectorRecordProcessorFactory<KinesisMessageModel, byte[]> getKinesisConnectorRecordProcessorFactory() {
-        return new KinesisConnectorRecordProcessorFactory<KinesisMessageModel, byte[]>(new S3Pipeline(), this.config);
+        return new KinesisSampleConnectorRecordProcessorFactory<>(new S3Pipeline(), this.config);
     }
 
     /**

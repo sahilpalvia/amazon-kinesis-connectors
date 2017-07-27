@@ -14,6 +14,7 @@
  */
 package samples.elasticsearch;
 
+import com.amazonaws.services.kinesis.connectors.impl.KinesisSampleConnectorRecordProcessorFactory;
 import samples.KinesisConnectorExecutor;
 import samples.KinesisMessageModel;
 
@@ -35,8 +36,7 @@ public class ElasticsearchExecutor extends KinesisConnectorExecutor<KinesisMessa
     @Override
     public KinesisConnectorRecordProcessorFactory<KinesisMessageModel, ElasticsearchObject>
             getKinesisConnectorRecordProcessorFactory() {
-        return new KinesisConnectorRecordProcessorFactory<KinesisMessageModel, ElasticsearchObject>(new ElasticsearchPipeline(),
-                config);
+        return new KinesisSampleConnectorRecordProcessorFactory<>(new ElasticsearchPipeline(), config);
     }
 
     /**

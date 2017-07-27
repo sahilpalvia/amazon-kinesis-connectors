@@ -14,6 +14,7 @@
  */
 package samples.redshiftbasic;
 
+import com.amazonaws.services.kinesis.connectors.impl.KinesisSampleConnectorRecordProcessorFactory;
 import samples.KinesisConnectorExecutor;
 import samples.KinesisMessageModel;
 
@@ -36,7 +37,7 @@ public class RedshiftBasicExecutor extends KinesisConnectorExecutor<KinesisMessa
 
     @Override
     public KinesisConnectorRecordProcessorFactory<KinesisMessageModel, byte[]> getKinesisConnectorRecordProcessorFactory() {
-        return new KinesisConnectorRecordProcessorFactory<>(new RedshiftBasicPipeline(), config);
+        return new KinesisSampleConnectorRecordProcessorFactory<>(new RedshiftBasicPipeline(), config);
     }
 
     /**
