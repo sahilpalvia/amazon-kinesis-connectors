@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package samples;
+package com.amazonaws.services.kinesis.connectors.samples;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,15 +21,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import com.amazonaws.services.kinesis.connectors.samples.utils.CloudFormationUtils;
+import com.amazonaws.services.kinesis.connectors.samples.utils.EC2Utils;
+import com.amazonaws.services.kinesis.connectors.samples.utils.KinesisUtils;
+import com.amazonaws.services.kinesis.connectors.samples.utils.S3Utils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import samples.utils.CloudFormationUtils;
-import samples.utils.DynamoDBUtils;
-import samples.utils.EC2Utils;
-import samples.utils.KinesisUtils;
-import samples.utils.RedshiftUtils;
-import samples.utils.S3Utils;
+import com.amazonaws.services.kinesis.connectors.samples.utils.DynamoDBUtils;
+import com.amazonaws.services.kinesis.connectors.samples.utils.RedshiftUtils;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;

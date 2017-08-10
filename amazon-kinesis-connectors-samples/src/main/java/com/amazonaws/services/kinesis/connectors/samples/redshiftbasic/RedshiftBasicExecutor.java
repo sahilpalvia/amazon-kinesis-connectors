@@ -12,11 +12,11 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package samples.redshiftbasic;
+package com.amazonaws.services.kinesis.connectors.samples.redshiftbasic;
 
 import com.amazonaws.services.kinesis.connectors.impl.KinesisSampleConnectorRecordProcessorFactory;
-import samples.KinesisConnectorExecutor;
-import samples.KinesisMessageModel;
+import com.amazonaws.services.kinesis.connectors.samples.KinesisConnectorExecutor;
+import com.amazonaws.services.kinesis.connectors.samples.KinesisMessageModel;
 
 import com.amazonaws.services.kinesis.connectors.KinesisConnectorRecordProcessorFactory;
 

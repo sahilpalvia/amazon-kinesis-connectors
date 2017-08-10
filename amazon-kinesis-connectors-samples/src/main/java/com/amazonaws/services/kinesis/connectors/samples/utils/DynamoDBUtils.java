@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package samples.utils;
+package com.amazonaws.services.kinesis.connectors.samples.utils;
 
 import java.util.Arrays;
 import java.util.List;

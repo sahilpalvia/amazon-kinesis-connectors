@@ -45,6 +45,6 @@
     <target name="run">
         <mkdir dir="${basedir}/build"/>
         <javac srcdir="${basedir}" destdir="${basedir}/build" classpathref="samples.classpath" />
-        <java classname="samples.dynamodb.DynamoDBExecutor" classpathref="samples.classpath" fork="true" />
+        <java classname="com.amazonaws.services.kinesis.connectors.samples.dynamodb.DynamoDBExecutor" classpathref="samples.classpath" fork="true" />
     </target>
 </project>

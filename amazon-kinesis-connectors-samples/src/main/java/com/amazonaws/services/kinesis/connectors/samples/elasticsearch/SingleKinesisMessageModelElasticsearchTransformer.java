@@ -12,14 +12,13 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package samples.elasticsearch;
+package com.amazonaws.services.kinesis.connectors.samples.elasticsearch;
 
 import java.io.IOException;
 
+import com.amazonaws.services.kinesis.connectors.samples.KinesisMessageModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import samples.KinesisMessageModel;
 
 import com.amazonaws.services.kinesis.connectors.elasticsearch.ElasticsearchObject;
 import com.amazonaws.services.kinesis.connectors.interfaces.ITransformer;
@@ -30,7 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Extends KinesisMessageModelElasticsearchTransformer and implements ITransformer
  * to provide a toClass method to transform an Amazon Kinesis Record into a KinesisMessageModel.
  * 
- * To see how this record was put, view {@class samples.StreamSource}.
+ * To see how this record was put, view {@class StreamSource}.
  */
 public class SingleKinesisMessageModelElasticsearchTransformer
         extends KinesisMessageModelElasticsearchTransformer

@@ -45,6 +45,6 @@
     <target name="run">
         <mkdir dir="${basedir}/build"/>
         <javac srcdir="${basedir}" destdir="${basedir}/build" classpathref="samples.classpath" />
-        <java classname="samples.s3.S3Executor" classpathref="samples.classpath" fork="true" />
+        <java classname="com.amazonaws.services.kinesis.connectors.samples.s3.S3Executor" classpathref="samples.classpath" fork="true" />
     </target>
 </project>
