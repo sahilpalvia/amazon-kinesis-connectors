@@ -65,16 +65,12 @@ import com.amazonaws.services.kinesis.model.Record;
  *
  */
 public abstract class KinesisConnectorRecordProcessor<T, U> implements IRecordProcessor {
-    private static final Log LOG = LogFactory.getLog(KinesisConnectorRecordProcessor.class);
-
     protected final IKinesisConnectorPipeline<T, U> kinesisConnectorPipeline;
     protected final KinesisConnectorConfiguration configuration;
     protected final IEmitter<U> emitter;
     protected final ITransformerBase<T, U> transformer;
     protected final IFilter<T> filter;
     protected final IBuffer<T> buffer;
-
-    protected boolean isShutdown = false;
 
     public KinesisConnectorRecordProcessor(IKinesisConnectorPipeline<T, U> kinesisConnectorPipeline,
                                            KinesisConnectorConfiguration configuration) {

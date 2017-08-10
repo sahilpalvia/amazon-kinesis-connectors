@@ -12,9 +12,9 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package samples.elasticsearch;
+package com.amazonaws.services.kinesis.connectors.samples.elasticsearch;
 
-import samples.KinesisMessageModel;
+import com.amazonaws.services.kinesis.connectors.samples.KinesisMessageModel;
 
 import com.amazonaws.services.kinesis.connectors.KinesisConnectorConfiguration;
 import com.amazonaws.services.kinesis.connectors.elasticsearch.ElasticsearchEmitter;

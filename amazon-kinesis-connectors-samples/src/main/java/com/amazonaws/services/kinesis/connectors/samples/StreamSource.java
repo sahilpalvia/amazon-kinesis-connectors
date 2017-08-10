@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package samples;
+package com.amazonaws.services.kinesis.connectors.samples;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,10 +20,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 
+import com.amazonaws.services.kinesis.connectors.samples.utils.KinesisUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import samples.utils.KinesisUtils;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.regions.RegionUtils;

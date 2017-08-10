@@ -27,6 +27,7 @@ import java.util.List;
 public class KinesisConnectorRecordProcessorForTest<T, U> extends KinesisConnectorRecordProcessor<T, U> {
     private final Log LOG = LogFactory.getLog(KinesisConnectorRecordProcessorForTest.class);
     private String shardId;
+    private boolean isShutdown = false;
 
     public KinesisConnectorRecordProcessorForTest(final IKinesisConnectorPipeline kinesisConnectorPipeline,
                                                   final KinesisConnectorConfiguration configuration) {
@@ -94,7 +95,7 @@ public class KinesisConnectorRecordProcessorForTest<T, U> extends KinesisConnect
     }
 
     private void emit(IRecordProcessorCheckpointer checkpointer, List<U> emitItems) {
-        List<U> unprocessed = new ArrayList<U>(emitItems);
+        List<U> unprocessed = new ArrayList<>(emitItems);
         try {
             for (int numTries = 0; numTries < getRetryLimit(); numTries++) {
                 unprocessed = emitter.emit(new UnmodifiableBuffer<U>(buffer, unprocessed));

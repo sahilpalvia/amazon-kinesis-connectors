@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package samples.elasticsearch;
+package com.amazonaws.services.kinesis.connectors.samples.elasticsearch;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,7 +22,7 @@ import java.util.Collection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import samples.KinesisMessageModel;
+import com.amazonaws.services.kinesis.connectors.samples.KinesisMessageModel;
 
 import com.amazonaws.services.kinesis.connectors.elasticsearch.ElasticsearchObject;
 import com.amazonaws.services.kinesis.connectors.interfaces.ICollectionTransformer;
@@ -33,7 +33,7 @@ import com.amazonaws.services.kinesis.model.Record;
  * to provide a toClass method to transform an Amazon Kinesis Record that contains multiple
  * instances of KinesisMessageModel.
  * 
- * To see how these records were batched, view {@class samples.BatchedStreamSource}.
+ * To see how these records were batched, view {@class BatchedStreamSource}.
  */
 public class BatchedKinesisMessageModelElasticsearchTransformer extends KinesisMessageModelElasticsearchTransformer
         implements ICollectionTransformer<KinesisMessageModel, ElasticsearchObject> {

@@ -48,27 +48,27 @@
     </dependency>
 
     <dependency>
-      <groupId>${parent.groupId}</groupId>
+      <groupId>${project.parent.groupId}</groupId>
       <artifactId>amazon-kinesis-connectors-core</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>${parent.groupId}</groupId>
+      <groupId>${project.parent.groupId}</groupId>
       <artifactId>amazon-kinesis-connector-dynamodb</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>${parent.groupId}</groupId>
+      <groupId>${project.parent.groupId}</groupId>
       <artifactId>amazon-kinesis-connector-redshift</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>${parent.groupId}</groupId>
+      <groupId>${project.parent.groupId}</groupId>
       <artifactId>amazon-kinesis-connector-elasticsearch</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
 
     <!-- Sample Dependencies -->
@@ -88,6 +88,11 @@
       <version>4.8.1</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.beust</groupId>
+      <artifactId>jcommander</artifactId>
+      <version>1.72</version>
+    </dependency>
 
   </dependencies>
 
@@ -124,28 +129,36 @@
         <configuration>
           <programs>
             <program>
-              <mainClass>samples.dynamodb.DynamoDBExecutor</mainClass>
+              <mainClass>com.amazonaws.services.kinesis.connectors.samples.dynamodb.DynamoDBExecutor</mainClass>
               <id>dynamodb-sample</id>
             </program>
             <program>
-              <mainClass>samples.s3.S3Executor</mainClass>
+              <mainClass>com.amazonaws.services.kinesis.connectors.samples.s3.S3Executor</mainClass>
               <id>s3-sample</id>
             </program>
             <program>
-              <mainClass>samples.elasticsearch.ElasticsearchExecutor</mainClass>
+              <mainClass>com.amazonaws.services.kinesis.connectors.samples.elasticsearch.ElasticsearchExecutor</mainClass>
               <id>elastic-search-sample</id>
             </program>
             <program>
-              <mainClass>samples.redshiftbasic.RedshiftBasicExecutor</mainClass>
+              <mainClass>com.amazonaws.services.kinesis.connectors.samples.redshiftbasic.RedshiftBasicExecutor</mainClass>
               <id>redshift-basic-sample</id>
             </program>
             <program>
-              <mainClass>samples.redshiftmanifest.RedshiftManifestExecutor</mainClass>
+              <mainClass>com.amazonaws.services.kinesis.connectors.samples.redshiftmanifest.RedshiftManifestExecutor</mainClass>
               <id>redshift-manifest-sample</id>
             </program>
           </programs>
         </configuration>
       </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+            </configuration>
+        </plugin>
     </plugins>
   </build>
 </project>

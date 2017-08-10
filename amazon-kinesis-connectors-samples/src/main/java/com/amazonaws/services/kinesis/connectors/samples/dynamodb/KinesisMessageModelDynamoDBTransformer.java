@@ -12,12 +12,12 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package samples.dynamodb;
+package com.amazonaws.services.kinesis.connectors.samples.dynamodb;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import samples.KinesisMessageModel;
+import com.amazonaws.services.kinesis.connectors.samples.KinesisMessageModel;
 
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.kinesis.connectors.BasicJsonTransformer;

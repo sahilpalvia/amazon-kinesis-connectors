@@ -12,14 +12,14 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package samples.elasticsearch;
+package com.amazonaws.services.kinesis.connectors.samples.elasticsearch;
 
 import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import samples.KinesisMessageModel;
+import com.amazonaws.services.kinesis.connectors.samples.KinesisMessageModel;
 
 import com.amazonaws.services.kinesis.connectors.elasticsearch.ElasticsearchObject;
 import com.amazonaws.services.kinesis.connectors.elasticsearch.ElasticsearchTransformer;
